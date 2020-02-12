@@ -3,7 +3,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3664835.svg)](https://doi.org/10.5281/zenodo.3664835)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://travis-ci.com/alan-turing-institute/Azure_usage.svg?token=P5xmw9ToBxzpqe6XCLTt&branch=master)](https://travis-ci.com/alan-turing-institute/azure_usage_v2) [![Build Status](https://travis-ci.com/alan-turing-institute/Azure_usage.svg?token=P5xmw9ToBxzpqe6XCLTt&branch=develop)](https://travis-ci.com/alan-turing-institute/azure_usage_v2)
+[![Build Status](https://travis-ci.com/alan-turing-institute/azure_usage_v1.svg?token=P5xmw9ToBxzpqe6XCLTt&branch=master)](https://travis-ci.com/alan-turing-institute/azure_usage_v1) [![Build Status](https://travis-ci.com/alan-turing-institute/azure_usage_v1.svg?token=P5xmw9ToBxzpqe6XCLTt&branch=develop)](https://travis-ci.com/alan-turing-institute/azure_usage_v1)
 
 ## Summary
 
