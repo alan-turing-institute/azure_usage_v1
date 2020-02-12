@@ -1,0 +1,3 @@
+SubscriptionName,SubscriptionGuid,Date,ResourceGuid,ServiceName,ServiceType,ServiceRegion,ServiceResource,Quantity,Cost
+Tomas Lazauskas,{SSS111},10/16/2019,{RRR111},Data Management,All,All,"Standard IO - Table Read Operation Units (in 10,000s)",2,2
+Tomas Lazauskas,{SSS111},10/17/2019,{RRR111},Data Management,All,All,"Standard IO - Table Read Operation Units (in 10,000s)",3,3

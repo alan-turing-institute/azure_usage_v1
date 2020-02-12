@@ -1,0 +1,58 @@
+######## TEST
+version: '3'
+
+services:
+  # Description of Containers:
+  #
+  #   authproxy   This is the oauth2_proxy container
+  #   nginx       This is the reverse proxy webserver
+  #   backend     This is the webapp that is protected by the oauth2_proxy
+
+  # Azure OAuth Proxy
+  authproxy:
+    container_name: authproxy
+    image: azureusage/oauth2:latest
+    networks:
+      webapp-net:
+    ports:
+      - "4180:4180"
+    environment:
+      - OAUTH2_PROXY_CLIENT_ID=<<<<REPLACE ME>>>>
+      - OAUTH2_PROXY_CLIENT_SECRET=<<<<REPLACE ME>>>>
+      - OAUTH2_PROXY_COOKIE_SECRET=<<<<REPLACE ME>>>>
+      - OAUTH2_PROXY_COOKIE_DOMAIN=turingazureusage.azurewebsites.net
+    command: [
+      "--provider=azure",
+      "--cookie-secure=false",
+      "--upstream=http://upstream:80",
+      "--http-address=0.0.0.0:4180",
+      "--redirect-url=https://turingazureusage.azurewebsites.net/oauth2/callback",
+      "--email-domain=turing.ac.uk",
+      "--azure-tenant=<<<<REPLACE ME>>>>"
+    ]
+
+  # nginx
+  upstream:
+    image: azureusage/nginx:latest
+    networks:
+      - webapp-net
+    ports:
+      - "80:80"
+    depends_on:
+      - authproxy
+      - backend
+
+  # backend
+  backend:
+    image: azureusage/azure_usage:latest
+    networks:
+      - webapp-net
+    ports:
+      - "5006:5006"
+    command: [
+      "/webapp/RUN.sh", "5006"
+    ]
+
+networks:
+  webapp-net:
+      driver: bridge

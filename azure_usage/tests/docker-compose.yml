@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  # Azure OAuth Proxy
+  authproxy:
+    image: azureusage/oauth2:latest
+    networks:
+      webapp-net:
+    ports:
+      - "4180:4180"
+    environment:
+      - OAUTH2_PROXY_CLIENT_ID=<<<<REPLACE ME>>>>
+      - OAUTH2_PROXY_CLIENT_SECRET=<<<<REPLACE ME>>>>
+      - OAUTH2_PROXY_COOKIE_SECRET=341iGF0EbmdAw*@^
+      - OAUTH2_PROXY_COOKIE_DOMAIN=localhost
+    command: [
+      "--provider=azure",
+      "--cookie-secure=false",
+      "--upstream=http://upstream:80",
+      "--http-address=0.0.0.0:4180",
+      "--redirect-url=https://turingazureusagetest.azurewebsites.net/oauth2/callback",
+      "--email-domain=turing.ac.uk",
+      "--azure-tenant=<<<<REPLACE ME>>>>"
+    ]
+
+  upstream:
+    build: ../docker-compose/nginx
+    networks:
+      webapp-net:
+    ports:
+      - "80:80"
+
+  backend:
+    build: ../.
+    networks:
+      webapp-net:
+    ports:
+      - "5100:5100"
+    command: [
+      "/webapp/server.sh", "5100"
+    ]
+
+networks:
+  webapp-net:

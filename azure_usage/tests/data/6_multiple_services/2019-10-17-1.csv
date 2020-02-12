@@ -1,0 +1,7 @@
+SubscriptionName,SubscriptionGuid,Date,ResourceGuid,ServiceName,ServiceType,ServiceRegion,ServiceResource,Quantity,Cost
+Tomas Lazauskas,{SSS111},10/17/2019,{RRR111},Service1,ST1,All,"Standard IO - Table Read Operation Units (in 10,000s)",1,1000
+Tomas Lazauskas,{SSS111},10/17/2019,{RRR111},Service2,ST2,All,"Standard IO - Table Read Operation Units (in 10,000s)",2,2000
+Tomas Lazauskas,{SSS111},10/17/2019,{RRR111},Service3,ST3,All,"Standard IO - Table Read Operation Units (in 10,000s)",3,3000
+Tomas Lazauskas,{SSS111},10/17/2019,{RRR111},Service4,ST4,All,"Standard IO - Table Read Operation Units (in 10,000s)",4,4000
+Tomas Lazauskas,{SSS111},10/17/2019,{RRR111},Service5,ST5,All,"Standard IO - Table Read Operation Units (in 10,000s)",5,5000
+Tomas Lazauskas,{SSS111},10/17/2019,{RRR111},Service6,ST6,All,"Standard IO - Table Read Operation Units (in 10,000s)",6,6000
