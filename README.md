@@ -1,4 +1,4 @@
-# Azure usage v2
+# Azure usage v1
 <!-- <img src="https://pngimage.net/wp-content/uploads/2018/06/logo-placeholder-png.png" width="200" align="right"> -->
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
