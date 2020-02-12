@@ -1,0 +1,17 @@
+sudo: required
+
+language: python
+
+services:
+  - docker
+
+before_install:
+  - docker build . -f Dockerfile -t azureusage/azure_usage:travis
+
+script:
+  - docker run -p 5006:5006 azureusage/azure_usage:travis /bin/bash -c "pytest azure_usage/tests/"
+  
+after_success:
+  - docker image rm azureusage/azure_usage:travis
+
+
