@@ -12,13 +12,17 @@ from ..src_webapp.constants import (
     CONST_COL_NAME_IDEALCOST,
     CONST_COL_NAME_AVAILCOST,
     CONST_COL_NAME_SUB,
-    CONST_COL_NAME_SGUID
+    CONST_COL_NAME_SGUID,
 )
 
 from ..src_webapp.data_loader import create_dataframe
 
 from ..src_webapp.utilities import diff_month
-from ..src_webapp.totals import group_year_month, add_missing_year_months
+from ..src_webapp.totals import (
+    group_year_month,
+    group_year_month_service,
+    add_missing_year_months,
+)
 from ..src_webapp.subs import get_data_for_subid
 
 # from src_webapp.constants import (
@@ -39,6 +43,7 @@ from ..src_webapp.subs import get_data_for_subid
 
 from dateutil.relativedelta import relativedelta
 
+
 class EA_budget:
     def __init__(self, name, dt_from, dt_to, amount, currency):
         self.name = name
@@ -47,8 +52,10 @@ class EA_budget:
         self.amount = amount
         self.currency = currency
 
-def create_cost_avail_ideal_df(ea_budget, ea_usage, date_from, date_to, max_reg_cost_day,
-    use_days=False):
+
+def create_cost_avail_ideal_df(
+    ea_budget, ea_usage, date_from, date_to, max_reg_cost_day, use_days=False
+):
     """
         Creates a dataframe with actual, ideal and available costs for an EA budget
 
@@ -82,7 +89,13 @@ def create_cost_avail_ideal_df(ea_budget, ea_usage, date_from, date_to, max_reg_
     budget_left = ea_budget.amount - budget_spent
 
     budget_days_left = max((ea_budget.dt_to - max_reg_cost_day).days, 0)
-    budget_months_left = max(diff_month(ea_budget.dt_to, copy.copy(max_reg_cost_day).replace(day=1) - relativedelta(days=1)), 0)
+    budget_months_left = max(
+        diff_month(
+            ea_budget.dt_to,
+            copy.copy(max_reg_cost_day).replace(day=1) - relativedelta(days=1),
+        ),
+        0,
+    )
 
     budget_left_avg_day = float(budget_left) / float(budget_days_left)
     budget_left_avg_month = float(budget_left) / float(budget_months_left)
@@ -96,13 +109,20 @@ def create_cost_avail_ideal_df(ea_budget, ea_usage, date_from, date_to, max_reg_
     while cur_date <= date_to:
 
         month_st = max(copy.copy(cur_date).replace(day=1), date_from)
-        month_end = min(copy.copy(cur_date).replace(day=1) + relativedelta(months=1) - relativedelta(days=1), date_to)
+        month_end = min(
+            copy.copy(cur_date).replace(day=1)
+            + relativedelta(months=1)
+            - relativedelta(days=1),
+            date_to,
+        )
 
         days_cnt = (month_end - month_st).days
-        year_month = '{year}-{month:02d}'.format(year=month_st.year, month=month_st.month)
+        year_month = "{year}-{month:02d}".format(
+            year=month_st.year, month=month_st.month
+        )
 
         # Check if the month has passed
-        full_month = (max_reg_cost_day >= month_end)
+        full_month = max_reg_cost_day >= month_end
 
         if full_month:
             if ea_budget.dt_from >= month_end:
@@ -123,7 +143,7 @@ def create_cost_avail_ideal_df(ea_budget, ea_usage, date_from, date_to, max_reg_
                 else:
                     monthly_avail = budget_left_avg_month
             else:
-               monthly_avail = 0.0
+                monthly_avail = 0.0
 
         year_month_list.append(year_month)
         ideal_list.append(monthly)
@@ -131,12 +151,16 @@ def create_cost_avail_ideal_df(ea_budget, ea_usage, date_from, date_to, max_reg_
 
         cur_date += relativedelta(months=1)
 
-    d = {CONST_COL_NAME_YM: year_month_list,
-         CONST_COL_NAME_IDEALCOST: ideal_list, CONST_COL_NAME_AVAILCOST: avail_list}
+    d = {
+        CONST_COL_NAME_YM: year_month_list,
+        CONST_COL_NAME_IDEALCOST: ideal_list,
+        CONST_COL_NAME_AVAILCOST: avail_list,
+    }
 
     df = pd.DataFrame(data=d)
 
     return df
+
 
 def analyse_ea_usage(budgets, ea_data_df, date_from, date_to, max_reg_cost_day):
     """
@@ -163,13 +187,21 @@ def analyse_ea_usage(budgets, ea_data_df, date_from, date_to, max_reg_cost_day):
 
     main_budget_df = None
     for ea_budget in budgets:
-        budget_df = create_cost_avail_ideal_df(ea_budget, ea_data_df, date_from, date_to, max_reg_cost_day)
+        budget_df = create_cost_avail_ideal_df(
+            ea_budget, ea_data_df, date_from, date_to, max_reg_cost_day
+        )
 
         if main_budget_df is None:
             main_budget_df = copy.deepcopy(budget_df)
         else:
-            main_budget_df[CONST_COL_NAME_IDEALCOST] = main_budget_df[CONST_COL_NAME_IDEALCOST] + budget_df[CONST_COL_NAME_IDEALCOST]
-            main_budget_df[CONST_COL_NAME_AVAILCOST] = main_budget_df[CONST_COL_NAME_AVAILCOST] + budget_df[CONST_COL_NAME_AVAILCOST]
+            main_budget_df[CONST_COL_NAME_IDEALCOST] = (
+                main_budget_df[CONST_COL_NAME_IDEALCOST]
+                + budget_df[CONST_COL_NAME_IDEALCOST]
+            )
+            main_budget_df[CONST_COL_NAME_AVAILCOST] = (
+                main_budget_df[CONST_COL_NAME_AVAILCOST]
+                + budget_df[CONST_COL_NAME_AVAILCOST]
+            )
 
     if ea_data_df is None:
         main_budget_df[CONST_COL_NAME_COST] = 0.0
@@ -183,6 +215,7 @@ def analyse_ea_usage(budgets, ea_data_df, date_from, date_to, max_reg_cost_day):
     ea_remain = ea_budget - ea_usage
 
     return ea_budget, ea_usage, ea_remain, main_budget_df
+
 
 def analyse_spnsr_usage(data_path, date_from, date_to, spnsr_budget):
     """
@@ -215,25 +248,64 @@ def analyse_spnsr_usage(data_path, date_from, date_to, spnsr_budget):
     spnsr_usage_ym_df = group_year_month(sub_data_df)
 
     # adding zeros for the missing year-months
-    spnsr_usage_ym_df = add_missing_year_months(spnsr_usage_ym_df,
-        date_from, date_to, CONST_COL_NAME_COST)
+    spnsr_usage_ym_df = add_missing_year_months(
+        spnsr_usage_ym_df, date_from, date_to, CONST_COL_NAME_COST
+    )
 
     # estimates ideal and available costs
-    spnsr_ideal_avail_ym_df, max_reg_cost_day = get_ideal_avail_spnsr_costs(sub_data_df,
-        date_from, date_to, spnsr_budget)
+    spnsr_ideal_avail_ym_df, max_reg_cost_day = get_ideal_avail_spnsr_costs(
+        sub_data_df, date_from, date_to, spnsr_budget
+    )
 
     # reset index
     spnsr_usage_ym_df = spnsr_usage_ym_df.reset_index(drop=True)
     spnsr_ideal_avail_ym_df = spnsr_ideal_avail_ym_df.reset_index(drop=True)
 
     # combining actual, ideal and available costs into one dataframe
-    spnsr_usage_df = pd.concat([spnsr_ideal_avail_ym_df,
-        spnsr_usage_ym_df.drop([CONST_COL_NAME_YM], axis=1)], axis=1)
+    spnsr_usage_df = pd.concat(
+        [spnsr_ideal_avail_ym_df, spnsr_usage_ym_df.drop([CONST_COL_NAME_YM], axis=1)],
+        axis=1,
+    )
 
     return spnsr_remain, spnsr_usage, spnsr_usage_df, max_reg_cost_day
 
-def get_ideal_avail_spnsr_costs(sub_raw_data_df, spnsr_date_from, spnsr_date_to,
-    spnsr_budget, use_days = False):
+
+def analyse_spnsr_usage_by_service(data_path, date_from, date_to):
+    """
+    Performs analysis for usage of sponsorship budegt
+
+    Args:
+        spnsr_data_path - path to the directory which contains all available usage data from both
+            the sponsorship portal and EduHub
+        date_from - analysis period start date (e.g. financial year start)
+        date_to - analysis period end date (e.g. financial year end)
+
+
+    Returns:
+        spnsr_remain - total remnain budget for the specified period
+        spnsr_usage - total usage over the specified period
+        spnsr_usage_df - data frame with usage analysis
+        max_reg_cost_day - the present (max date with sponsorship usage)
+
+    """
+
+    # reading in the data
+    data_df = create_dataframe(data_path)
+
+    # applying data filters
+    sub_data_df = data_df[(data_df.Date >= date_from) & (data_df.Date <= date_to)]
+
+    # spnsr_usage = sub_data_df[CONST_COL_NAME_COST].sum()
+    # spnsr_remain = spnsr_budget - spnsr_usage
+
+    spnsr_usage_yms_df = group_year_month_service(sub_data_df)
+
+    return spnsr_usage_yms_df
+
+
+def get_ideal_avail_spnsr_costs(
+    sub_raw_data_df, spnsr_date_from, spnsr_date_to, spnsr_budget, use_days=False
+):
     """ Estimates the ideal spending scenario and available costs based on the usage during
         the analysis period.
 
@@ -291,13 +363,20 @@ def get_ideal_avail_spnsr_costs(sub_raw_data_df, spnsr_date_from, spnsr_date_to,
     while cur_date < date_to:
 
         month_st = max(copy.copy(cur_date).replace(day=1), date_from)
-        month_end = min(copy.copy(cur_date).replace(day=1) + relativedelta(months=1) - relativedelta(days=1), date_to)
+        month_end = min(
+            copy.copy(cur_date).replace(day=1)
+            + relativedelta(months=1)
+            - relativedelta(days=1),
+            date_to,
+        )
 
         days_cnt = (month_end - month_st).days
-        year_month = '{year}-{month:02d}'.format(year=month_st.year, month=month_st.month)
+        year_month = "{year}-{month:02d}".format(
+            year=month_st.year, month=month_st.month
+        )
 
         # Check if the month has passed
-        full_month = (max_reg_cost_day >= month_end)
+        full_month = max_reg_cost_day >= month_end
 
         if full_month:
             if use_days:
@@ -320,13 +399,16 @@ def get_ideal_avail_spnsr_costs(sub_raw_data_df, spnsr_date_from, spnsr_date_to,
 
         cur_date += relativedelta(months=1)
 
-    d = {CONST_COL_NAME_YM: year_month_list,
+    d = {
+        CONST_COL_NAME_YM: year_month_list,
         CONST_COL_NAME_IDEALCOST: ideal_cost_list,
-        CONST_COL_NAME_AVAILCOST: avail_cost_list}
+        CONST_COL_NAME_AVAILCOST: avail_cost_list,
+    }
 
     df = pd.DataFrame(data=d)
 
     return df, max_reg_cost_day
+
 
 def get_detailed_spnsr_analysis_df(data_path, date_from, date_to):
 
@@ -340,7 +422,7 @@ def get_detailed_spnsr_analysis_df(data_path, date_from, date_to):
     dsg_ids = get_DSGs_IDs()
 
     dsg_name = "Data Study Groups"
-    dsg_guid = '1'
+    dsg_guid = "1"
     dsg_df = agg_totals_sub_group(df, dsg_ids, dsg_name, dsg_guid)
 
     # raw data excluding dsgs
@@ -348,55 +430,74 @@ def get_detailed_spnsr_analysis_df(data_path, date_from, date_to):
 
     total_from = 0.0
     total_to = 1000.0
-    sub_id_2 = '2'
+    sub_id_2 = "2"
 
-    sub_ids_0_1, sub_grp_totals_0_1_df = agg_subs_with_total_usage(sub_raw_data_df_no_dsgs,
-                                                                           total_from, total_to,
-                                                                           sub_id_2, "NA")
-    sub_name_2 = "{} Subscriptions with {:d} to {:d} spent".format(len(sub_ids_0_1), int(total_from), int(total_to))
+    sub_ids_0_1, sub_grp_totals_0_1_df = agg_subs_with_total_usage(
+        sub_raw_data_df_no_dsgs, total_from, total_to, sub_id_2, "NA"
+    )
+    sub_name_2 = "{} Subscriptions with {:d} to {:d} spent".format(
+        len(sub_ids_0_1), int(total_from), int(total_to)
+    )
 
     total_from = 1000.0
     total_to = 5000.0
-    sub_id_3 = '3'
-    sub_ids_1_5, sub_grp_totals_1_5_df = agg_subs_with_total_usage(sub_raw_data_df_no_dsgs,
-                                                                           total_from, total_to,
-                                                                           sub_id_3, "NA")
-    sub_name_3 = "{} Subscriptions with {:d} to {:d} spent".format(len(sub_ids_1_5), int(total_from), int(total_to))
+    sub_id_3 = "3"
+    sub_ids_1_5, sub_grp_totals_1_5_df = agg_subs_with_total_usage(
+        sub_raw_data_df_no_dsgs, total_from, total_to, sub_id_3, "NA"
+    )
+    sub_name_3 = "{} Subscriptions with {:d} to {:d} spent".format(
+        len(sub_ids_1_5), int(total_from), int(total_to)
+    )
 
     total_from = 5000.0
     total_to = 10000.0
-    sub_id_4 = '4'
-    sub_ids_5_10, sub_grp_totals_5_10_df = agg_subs_with_total_usage(sub_raw_data_df_no_dsgs,
-                                                                           total_from, total_to,
-                                                                           sub_id_4, "NA")
-    sub_name_4 = "{} Subscriptions with {:d} to {:d} spent".format(len(sub_ids_5_10), int(total_from), int(total_to))
+    sub_id_4 = "4"
+    sub_ids_5_10, sub_grp_totals_5_10_df = agg_subs_with_total_usage(
+        sub_raw_data_df_no_dsgs, total_from, total_to, sub_id_4, "NA"
+    )
+    sub_name_4 = "{} Subscriptions with {:d} to {:d} spent".format(
+        len(sub_ids_5_10), int(total_from), int(total_to)
+    )
 
     exclude_list = dsg_ids + sub_ids_0_1 + sub_ids_1_5 + sub_ids_5_10
 
     excl_df = group_sub_year_month(get_data_excl_subid(df, exclude_list))
 
-    excl_df.insert(0, CONST_COL_NAME_SUB, '')
-    excl_df[CONST_COL_NAME_SUB] = excl_df[CONST_COL_NAME_SGUID].apply(lambda x: get_sub_latest_name(df, x))
+    excl_df.insert(0, CONST_COL_NAME_SUB, "")
+    excl_df[CONST_COL_NAME_SUB] = excl_df[CONST_COL_NAME_SGUID].apply(
+        lambda x: get_sub_latest_name(df, x)
+    )
 
-    final_df = pd.concat([excl_df, dsg_df,
-                          sub_grp_totals_0_1_df,
-                          sub_grp_totals_1_5_df,
-                          sub_grp_totals_5_10_df], sort=False)
+    final_df = pd.concat(
+        [
+            excl_df,
+            dsg_df,
+            sub_grp_totals_0_1_df,
+            sub_grp_totals_1_5_df,
+            sub_grp_totals_5_10_df,
+        ],
+        sort=False,
+    )
 
-    final_pivot = pd.pivot_table(final_df, index=CONST_COL_NAME_SGUID,
-                                        columns=CONST_COL_NAME_YM,
-                                        values=CONST_COL_NAME_COST,
-                                        aggfunc=np.sum, margins=True)
+    final_pivot = pd.pivot_table(
+        final_df,
+        index=CONST_COL_NAME_SGUID,
+        columns=CONST_COL_NAME_YM,
+        values=CONST_COL_NAME_COST,
+        aggfunc=np.sum,
+        margins=True,
+    )
 
-    masked_pivot = final_pivot.replace(np.nan, '', regex=True)
+    masked_pivot = final_pivot.replace(np.nan, "", regex=True)
 
-    result = masked_pivot.sort_values(('All'), ascending=False)
+    result = masked_pivot.sort_values(("All"), ascending=False)
 
     pivot_df = pd.DataFrame(result.to_records())
 
-    pivot_df.insert(0, CONST_COL_NAME_SUB, '')
-    pivot_df[CONST_COL_NAME_SUB] = pivot_df[CONST_COL_NAME_SGUID].apply(lambda x: get_sub_latest_name(df, x))
-
+    pivot_df.insert(0, CONST_COL_NAME_SUB, "")
+    pivot_df[CONST_COL_NAME_SUB] = pivot_df[CONST_COL_NAME_SGUID].apply(
+        lambda x: get_sub_latest_name(df, x)
+    )
 
     # Updating Subscription names and ids
     pivot_df.loc[pivot_df.SubscriptionGuid == dsg_guid, CONST_COL_NAME_SUB] = dsg_name
@@ -407,7 +508,9 @@ def get_detailed_spnsr_analysis_df(data_path, date_from, date_to):
 
     return pivot_df
 
+
 ###### NO UNIT TESTS FOR ALL THE FOLLWING FUNCTIONS
+
 
 def get_data_excl_subid(raw_data, sub_ids):
     """Filters data excluding particular subscription id or a list of subscription ids
@@ -420,6 +523,7 @@ def get_data_excl_subid(raw_data, sub_ids):
         return raw_data[~raw_data.SubscriptionGuid.isin(sub_ids)]
     else:
         return raw_data[raw_data.SubscriptionGuid != sub_ids]
+
 
 def agg_totals_sub_group(df, sub_ids, sub_name, sub_id):
     """ Aggregates the costs for a group of subscriptions based on their ids
@@ -438,55 +542,58 @@ def agg_totals_sub_group(df, sub_ids, sub_name, sub_id):
 
     return sub_group_df
 
+
 def get_DSGs_IDs():
     print("WARNING: ", "get_DSGs_IDs: ", "Are DSG IDs up to day?")
 
-    dsg_ids = ['{3304DEF8-15AF-4DA2-8D4C-50A3BD9F5114}',
-                '{EB9F30AA-04C9-4779-8B8A-2D08285142F2}',
-                '{F484347F-982E-4553-8978-213F8AF3FD43}',
-                '{47D02213-61A2-4113-9126-322C8876BE2F}',
-                '{362F5084-5218-4B19-85C1-F7FF9E872046}',
-                '{71E21E4C-4177-4CF1-AB25-6A88E52EDD03}',
-                '{FB631FDE-18F2-45F4-B018-D622DC16D94E}',
-                '{7D83CCB2-E88A-43B8-AF34-7E1D74BE3C40}',
-                '{F2F151B9-2AF6-4E1D-9CD4-FB80E59D3BDF}',
-                '{9259CB1C-EAA3-4301-889E-F8C9988A4AD3}',
-                '{93077F61-2D19-480C-9994-4FAFDD6185D2}',
-                '{2CD64292-4240-4274-98ED-FC86AB395280}',
-                '{D2B3BB29-ADD7-44A1-8185-93C6155C7169}',
-                '{4E8AC81B-220D-4B93-88E4-75F27A5D8AD1}',
-                '{90B42CAC-AE2D-45C1-A8B1-B26839FF20F1}',
-                '{0503155C-2BFE-4CDE-89EC-038EA288E79D}',
-                '{E305A285-A056-4173-91DA-F7623E0A4524}',
-                '{9C3DC1EE-CF80-4C32-95AB-8F32B0CEA40C}',
-                '{813E99A0-5C7C-4C43-AFD3-2A9566880854}',
-                '{BE6D41C8-4D43-4890-AF25-771D40272758}',
-                '{AFE7C62F-CF25-44B3-9E56-D7A14A3EA5E4}',
-                '{F871C3F7-6A68-42FB-BED6-81689E730F7A}',
-                '{1BA6669A-274F-407C-96D7-53BE98300C5F}',
-                '{95ACC417-CC03-47A5-8356-5746187DD1F8}',
-                '{0045F23F-5F08-46DD-ACD3-4900DF4324B3}',
-                '{A88DB981-D063-486A-BC2D-58DC20455F32}',
-                '{0F84BE1D-CEE9-439A-9218-DCEB1AE2BF21}',
-                '{73206399-6F5A-44CC-B190-77C1A238D36B}',
-                '{86AAF003-3C41-43F5-BA0E-C834C3949E80}',
-                '{F23BAA60-1BD7-4B16-B9AD-AD905ADD9F74}',
-                '{D45183A8-1476-4097-BBA5-6E50AC38D1CF}',
-                '{C5DF9808-1109-4804-8F5F-EC54D6D2A10F}',
-                '{34C1DA4E-C612-4FA3-A9A7-FDF5B1BC4BB0}',
-                '{91A3CCC7-1E9F-4944-A3B6-4A5800EF5341}',
-                '{3D36AD79-2C59-4A9B-B281-33707540168E}',
-                '{712EF6E4-1373-4462-A239-9716D3F207DB}',
-                '{2CFBEFAC-5C00-4B90-8512-311A7430F548}',
-                '{C90191BD-4ECD-4C9B-9283-23A61DC822D5}',
-                '{9DB57597-498F-4A44-8580-7BB5F31CBA94}',
-                '{1F82E26B-36E9-4B24-8F8A-3CADF98257C8}',
-                '{4312ADF2-DBE4-4090-A424-3FB6BE97EF49}',
-                '{37471D1B-2D3F-42F9-A93C-517BDC0CAB18}',
-                '{FC3971E4-3998-496D-B446-BEA651FB398B}',
-                ]
+    dsg_ids = [
+        "{3304DEF8-15AF-4DA2-8D4C-50A3BD9F5114}",
+        "{EB9F30AA-04C9-4779-8B8A-2D08285142F2}",
+        "{F484347F-982E-4553-8978-213F8AF3FD43}",
+        "{47D02213-61A2-4113-9126-322C8876BE2F}",
+        "{362F5084-5218-4B19-85C1-F7FF9E872046}",
+        "{71E21E4C-4177-4CF1-AB25-6A88E52EDD03}",
+        "{FB631FDE-18F2-45F4-B018-D622DC16D94E}",
+        "{7D83CCB2-E88A-43B8-AF34-7E1D74BE3C40}",
+        "{F2F151B9-2AF6-4E1D-9CD4-FB80E59D3BDF}",
+        "{9259CB1C-EAA3-4301-889E-F8C9988A4AD3}",
+        "{93077F61-2D19-480C-9994-4FAFDD6185D2}",
+        "{2CD64292-4240-4274-98ED-FC86AB395280}",
+        "{D2B3BB29-ADD7-44A1-8185-93C6155C7169}",
+        "{4E8AC81B-220D-4B93-88E4-75F27A5D8AD1}",
+        "{90B42CAC-AE2D-45C1-A8B1-B26839FF20F1}",
+        "{0503155C-2BFE-4CDE-89EC-038EA288E79D}",
+        "{E305A285-A056-4173-91DA-F7623E0A4524}",
+        "{9C3DC1EE-CF80-4C32-95AB-8F32B0CEA40C}",
+        "{813E99A0-5C7C-4C43-AFD3-2A9566880854}",
+        "{BE6D41C8-4D43-4890-AF25-771D40272758}",
+        "{AFE7C62F-CF25-44B3-9E56-D7A14A3EA5E4}",
+        "{F871C3F7-6A68-42FB-BED6-81689E730F7A}",
+        "{1BA6669A-274F-407C-96D7-53BE98300C5F}",
+        "{95ACC417-CC03-47A5-8356-5746187DD1F8}",
+        "{0045F23F-5F08-46DD-ACD3-4900DF4324B3}",
+        "{A88DB981-D063-486A-BC2D-58DC20455F32}",
+        "{0F84BE1D-CEE9-439A-9218-DCEB1AE2BF21}",
+        "{73206399-6F5A-44CC-B190-77C1A238D36B}",
+        "{86AAF003-3C41-43F5-BA0E-C834C3949E80}",
+        "{F23BAA60-1BD7-4B16-B9AD-AD905ADD9F74}",
+        "{D45183A8-1476-4097-BBA5-6E50AC38D1CF}",
+        "{C5DF9808-1109-4804-8F5F-EC54D6D2A10F}",
+        "{34C1DA4E-C612-4FA3-A9A7-FDF5B1BC4BB0}",
+        "{91A3CCC7-1E9F-4944-A3B6-4A5800EF5341}",
+        "{3D36AD79-2C59-4A9B-B281-33707540168E}",
+        "{712EF6E4-1373-4462-A239-9716D3F207DB}",
+        "{2CFBEFAC-5C00-4B90-8512-311A7430F548}",
+        "{C90191BD-4ECD-4C9B-9283-23A61DC822D5}",
+        "{9DB57597-498F-4A44-8580-7BB5F31CBA94}",
+        "{1F82E26B-36E9-4B24-8F8A-3CADF98257C8}",
+        "{4312ADF2-DBE4-4090-A424-3FB6BE97EF49}",
+        "{37471D1B-2D3F-42F9-A93C-517BDC0CAB18}",
+        "{FC3971E4-3998-496D-B446-BEA651FB398B}",
+    ]
 
     return dsg_ids
+
 
 def agg_subs_with_total_usage(df, total_from, total_to, sub_id, sub_name):
     """ Aggregates the costs for subscriptions with total costs within a set range
@@ -511,6 +618,7 @@ def agg_subs_with_total_usage(df, total_from, total_to, sub_id, sub_name):
 
     return sub_ids, res_df
 
+
 def group_sub_year_month(raw_data):
     """Groups raw usage by calender month and subscriptionid
     Args:
@@ -520,11 +628,21 @@ def group_sub_year_month(raw_data):
     """
 
     raw_data_ = raw_data.copy()
-    raw_data_[CONST_COL_NAME_YM] = pd.to_datetime(raw_data_[CONST_COL_NAME_DATE]).apply(lambda x: '{year}-{month:02d}'.format(year=x.year, month=x.month))
+    raw_data_[CONST_COL_NAME_YM] = pd.to_datetime(raw_data_[CONST_COL_NAME_DATE]).apply(
+        lambda x: "{year}-{month:02d}".format(year=x.year, month=x.month)
+    )
 
-    raw_data_gr = raw_data_.groupby([CONST_COL_NAME_SGUID, CONST_COL_NAME_YM])[CONST_COL_NAME_COST].sum().reset_index().sort_values(by=[CONST_COL_NAME_YM], ascending=True)
+    raw_data_gr = (
+        raw_data_.groupby([CONST_COL_NAME_SGUID, CONST_COL_NAME_YM])[
+            CONST_COL_NAME_COST
+        ]
+        .sum()
+        .reset_index()
+        .sort_values(by=[CONST_COL_NAME_YM], ascending=True)
+    )
 
     return raw_data_gr
+
 
 def get_sub_latest_name(raw_data_df, sub_id):
     """Returns the latest subscription name from the raw data for a particular subscription id
@@ -537,7 +655,12 @@ def get_sub_latest_name(raw_data_df, sub_id):
 
     raw_data_df_temp = raw_data_df[raw_data_df.SubscriptionGuid == sub_id]
 
-    raw_sub_last_df = raw_data_df_temp[["SubscriptionGuid", "Date", "SubscriptionName"]].groupby(['SubscriptionGuid']).agg('max').reset_index()
+    raw_sub_last_df = (
+        raw_data_df_temp[["SubscriptionGuid", "Date", "SubscriptionName"]]
+        .groupby(["SubscriptionGuid"])
+        .agg("max")
+        .reset_index()
+    )
 
     try:
         return str(raw_sub_last_df["SubscriptionName"][0])
