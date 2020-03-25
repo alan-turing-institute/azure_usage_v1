@@ -28,7 +28,7 @@ from .constants import (
 )
 
 from .subs import (
-    get_data_for_subid, 
+    get_data_for_subid,
     get_top_services,
     calc_top_services_perc)
 
@@ -49,7 +49,7 @@ from bokeh.palettes import Category20c
 from bokeh.transform import cumsum
 from bokeh.models.widgets import Select, Slider, TextInput, DateRangeSlider, \
     DataTable, DateFormatter, TableColumn, NumberFormatter, Div, DatePicker, \
-    Tabs, Panel, PreText, RadioButtonGroup
+    Tabs, Panel, PreText, RadioButtonGroup, Div
 from bokeh.models.glyphs import Wedge
 
 # Global variables
@@ -83,7 +83,7 @@ def readin_data(data_path=None):
 
     if data_path is None:
         _data_path = os.path.join(
-            os.path.join(global_pwd, '..', '..'), 
+            os.path.join(global_pwd, '..', '..'),
             DATA_FOLDER)
     else:
         _data_path = data_path
@@ -102,7 +102,7 @@ def get_url_params(doc):
     Returns:
         A dictionary with the parsed url parameters
     """
-    
+
     doc_args = doc.session_context.request.arguments
 
     return parse_url_params(doc_args)
@@ -110,7 +110,7 @@ def get_url_params(doc):
 def create_updates_tab():
     """
     Creates updates tab
-    
+
     """
 
     file_path = os.path.join(
@@ -136,18 +136,18 @@ def create_about_tab():
     """
 
     file_path = os.path.join(
-        os.path.join(global_pwd, '..', '..'), 
+        os.path.join(global_pwd, '..', '..'),
         README_FILE)
-    
+
     # about widget
     about_text = ""
     line_cnt = 0
     for line in open(file_path, "r", encoding=CONST_ENCODING):
-        if line_cnt > 3:
+        if not line.startswith("[!["):
             about_text += line
         line_cnt += 1
 
-    widget_about = PreText(text="""%s""" % (about_text))
+    widget_about = Div(text="""%s""" % (about_text), width=800)
 
     about_widgets = column(children=[
         row(children=[widget_about])
@@ -180,7 +180,7 @@ def create_usage_bar_plot():
 def create_top_services_pie_plot():
     """ Creates top services pie plot
     """
-    
+
     pie_plot = figure(plot_height=500, plot_width=800, x_range=(-0.5, 1.0),
         tools='hover', tooltips=[(CONST_COL_NAME_SERVICE, '@Service'),
             (CONST_COL_NAME_COST, '@Cost{$0.2f}'),
@@ -212,7 +212,7 @@ def modify_doc(doc):
 
     # sets the layout of the webapp
     _set_layout(doc, url_params)
-    
+
     # plots the data
     _update_data(doc, url_params)
 
@@ -220,7 +220,7 @@ def modify_doc(doc):
     doc.title = DEFAULT_REPORT_NAME
 
 def initiliase_data_sources():
-    
+
     global global_raw_usage
     global global_sub_raw_usage
     global global_sub_service_grp
@@ -228,16 +228,16 @@ def initiliase_data_sources():
     global global_total_source
     global global_top_service_source
 
-    default_subid = "" 
+    default_subid = ""
 
     prep_sub_ids_list = prep_sub_ids(default_subid)
-    
+
     global_sub_raw_usage = get_data_for_subid(global_raw_usage, prep_sub_ids_list)
 
     sub_raw_usage_grp = group_day(global_sub_raw_usage, add_missing_days=True)
 
     global_total_source = ColumnDataSource(data=sub_raw_usage_grp)
-    
+
     # Generates a data frame of top services which costed more than min_cost,
     #   rest of the costs added as Other
     global_sub_service_grp = get_top_services(global_sub_raw_usage)
@@ -250,14 +250,14 @@ def initiliase_data_sources():
 
 def _update_data(doc, url_params):
     """
-    
+
     Arguments:
         doc: a bokeh document to which elements can be added.
         url_params: parameters passed with the url
         raw_usage: raw usage dataframe
 
     """
-    
+
     global global_raw_usage
     global global_total_source
     global global_top_service_source
@@ -301,15 +301,15 @@ def _update_data(doc, url_params):
             else:
                 subscription_name = single_sub_usage.iloc[0].SubscriptionName
                 subscription_names.append(subscription_name)
-        
+
         if(subscription_names):
             subscription_names_string = ", ".join(subscription_names)
-            
+
     if all_mode:
         global_widget_subscription_names.text = "<b>{0} subscriptions selected</b>".format(len(prep_sub_ids_list))
     else:
         global_widget_subscription_names.text = "<b>{0} subscriptions selected:</b> {1}".format(len(subscription_names), subscription_names_string)
-    
+
     # TOTAL USAGE
     new_sub_raw_usage_grp = group_day(new_sub_raw_usage, add_missing_days=True)
 
@@ -339,7 +339,7 @@ def _update_data(doc, url_params):
 def _create_analysis_tab(doc, url_params):
     """
     Creates analysis tab
-    
+
     Arguments:
         doc: a bokeh document to which elements can be added.
         url_params: url parameters passed with the url
@@ -367,7 +367,7 @@ def _create_analysis_tab(doc, url_params):
             style={'font-size': '125%', 'color': 'black'})
     else:
         last_update_text = None
-    
+
     global_widget_subid = TextInput(title="Subscription IDs (comma separated)", value=url_params[URL_PARAM_SUB_IDS],
         css_classes=['customTextInput'])
 
@@ -410,7 +410,7 @@ def _create_analysis_tab(doc, url_params):
 
     # top services grouping button
     global_widget_top_services_rb = RadioButtonGroup(
-        labels=[CONST_RB_LABEL_0, CONST_RB_LABEL_1, CONST_RB_LABEL_2, CONST_RB_LABEL_3], 
+        labels=[CONST_RB_LABEL_0, CONST_RB_LABEL_1, CONST_RB_LABEL_2, CONST_RB_LABEL_3],
         active=CONST_RB_DEFAULT)
 
     # top services pie plot
@@ -421,7 +421,7 @@ def _create_analysis_tab(doc, url_params):
         layout([widget_input_text, last_update_text]),
         [global_widget_subid, global_date_picker_from, global_date_picker_to],
         [global_widget_subscription_names],
-        [widget_usage_text], 
+        [widget_usage_text],
         [global_s1],
         [global_widget_total_text],
         [widget_top_services_text],
@@ -456,7 +456,7 @@ def _create_top_services_tbl():
             Columns.append(TableColumn(field=Ci, title=Ci))
 
     top_services_table = DataTable(columns=Columns, source=global_top_service_source, width=400)
-    
+
     return top_services_table
 
 def _set_layout(doc, url_params):
@@ -469,7 +469,7 @@ def _set_layout(doc, url_params):
 
     tabs = Tabs(tabs=[
         _create_analysis_tab(doc, url_params),
-        create_updates_tab(), 
+        create_updates_tab(),
         create_about_tab()])
 
     _plot_total_usage()
