@@ -313,7 +313,7 @@ def _update_data(doc, url_params):
     # TOTAL USAGE
     new_sub_raw_usage_grp = group_day(new_sub_raw_usage, add_missing_days=True)
 
-    global_total_source.data = ColumnDataSource(data=new_sub_raw_usage_grp).data
+    global_total_source.data = dict(ColumnDataSource(data=new_sub_raw_usage_grp).data)
 
     # Ploting TOP SERVICES
     new_sub_service_grp = get_top_services(new_sub_raw_usage, top_services_grp_md=global_widget_top_services_rb.active)
@@ -332,7 +332,7 @@ def _update_data(doc, url_params):
         new_sub_service_grp[CONST_COL_NAME_ANGLE] = 0
         new_sub_service_grp['color'] = Category20c[3][:1]
 
-    global_top_service_source.data = ColumnDataSource(data=new_sub_service_grp).data
+    global_top_service_source.data = dict(ColumnDataSource(data=new_sub_service_grp).data)
 
     global_widget_total_text.text = "Total usage: ${:,.2f}".format(new_sub_raw_usage_grp.sum()[CONST_COL_NAME_COST])
 
@@ -366,30 +366,30 @@ def _create_analysis_tab(doc, url_params):
         last_update_text = Div(text="Last updated: {}".format(global_last_update.strftime('%B %d, %Y, %r')),
             style={'font-size': '125%', 'color': 'black'})
     else:
-        last_update_text = None
+        last_update_text = Div(text="Last updated:")
 
     global_widget_subid = TextInput(title="Subscription IDs (comma separated)", value=url_params[URL_PARAM_SUB_IDS],
         css_classes=['customTextInput'])
 
-    date_min = url_params[URL_PARAM_DT_FROM]
-
-    if not date_min:
+    if not url_params[URL_PARAM_DT_FROM]:
         if not global_sub_raw_usage.empty:
-            date_min = global_sub_raw_usage.Date.min()
+            date_min = global_sub_raw_usage.Date.min().date()
         elif not global_raw_usage.empty:
-            date_min = global_raw_usage.Date.min()
+            date_min = global_raw_usage.Date.min().date()
         else:
-            date_min = pd.to_datetime("2016-01-01")
+            date_min = pd.to_datetime("2016-01-01").date()
+    else:
+        date_min = url_params[URL_PARAM_DT_FROM].date()
 
-    date_max = url_params[URL_PARAM_DT_TO]
-
-    if not date_max:
+    if not url_params[URL_PARAM_DT_TO]:
         if not global_sub_raw_usage.empty:
-            date_max = global_sub_raw_usage.Date.min()
+            date_max = global_sub_raw_usage.Date.min().date()
         elif not global_raw_usage.empty:
-            date_max = global_raw_usage.Date.max()
+            date_max = global_raw_usage.Date.max().date()
         else:
-            date_max = pd.to_datetime("2021-12-31")
+            date_max = pd.to_datetime("2021-12-31").date()
+    else:
+        date_max = url_params[URL_PARAM_DT_TO].date()
 
     global_date_picker_from = DatePicker(value=date_min, title="Date from")
     global_date_picker_to = DatePicker(value=date_max, title="Date to")
@@ -496,8 +496,8 @@ def _plot_top_services():
     global global_top_service_source
 
     global_s2.wedge(x=0, y=1, radius=0.4,
-            start_angle=cumsum(CONST_COL_NAME_ANGLE, include_zero=True), end_angle=cumsum(CONST_COL_NAME_ANGLE),
-            line_color="white", fill_color='color', legend=CONST_COL_NAME_SERVICE, source=global_top_service_source)
+        start_angle=cumsum(CONST_COL_NAME_ANGLE, include_zero=True), end_angle=cumsum(CONST_COL_NAME_ANGLE),
+        line_color="white", fill_color='color', legend_field=CONST_COL_NAME_SERVICE, source=global_top_service_source)
 
     global_s2.axis.axis_label = None
     global_s2.axis.visible = False
