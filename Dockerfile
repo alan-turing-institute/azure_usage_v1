@@ -2,6 +2,9 @@ FROM ubuntu:latest
 
 # Python 3 and pip
 RUN apt-get update \
+  && apt-get install -y python3
+
+RUN apt-get update \
   && apt-get install -y python3-pip python3-dev \
   && cd /usr/local/bin \
   && ln -s /usr/bin/python3 python \
