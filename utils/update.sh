@@ -23,7 +23,7 @@ if ! [ -z "$(ls -A "$output_dir")" ]; then
 fi
 
 # Prepares data based on the 
-python3 utils/prep_data.py -i "$input_dir" -o "$output_dir" 
+python utils/prep_data.py -i "$input_dir" -o "$output_dir" 
 
 ##################################################################################
 # Pulling the latest version from git
