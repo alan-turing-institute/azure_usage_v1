@@ -1,3 +1,7 @@
+📝 25/03/2020
+
+- Bug fixes
+
 📝 12/12/2019
 
 - Added "Last updated"
