@@ -366,7 +366,7 @@ def _create_analysis_tab(doc, url_params):
         last_update_text = Div(text="Last updated: {}".format(global_last_update.strftime('%B %d, %Y, %r')),
             style={'font-size': '125%', 'color': 'black'})
     else:
-        last_update_text = None
+        last_update_text = Div(text="Last updated:")
 
     global_widget_subid = TextInput(title="Subscription IDs (comma separated)", value=url_params[URL_PARAM_SUB_IDS],
         css_classes=['customTextInput'])
