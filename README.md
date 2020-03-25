@@ -7,7 +7,7 @@
 
 <h2>Summary</h2>
 
-Web app for the Turing research community to analyse Azure usage at the subscription level.
+Webapp for the Turing research community to analyse Azure usage at the subscription level.
 <br><br>
 Created and designed by <a href="https://github.com/tomaslaz">Tomas Lazauskas</a>.
 <br><br>
