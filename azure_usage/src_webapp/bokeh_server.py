@@ -371,25 +371,25 @@ def _create_analysis_tab(doc, url_params):
     global_widget_subid = TextInput(title="Subscription IDs (comma separated)", value=url_params[URL_PARAM_SUB_IDS],
         css_classes=['customTextInput'])
 
-    date_min = url_params[URL_PARAM_DT_FROM]
-
-    if not date_min:
+    if not url_params[URL_PARAM_DT_FROM]:
         if not global_sub_raw_usage.empty:
-            date_min = global_sub_raw_usage.Date.min()
+            date_min = global_sub_raw_usage.Date.min().date()
         elif not global_raw_usage.empty:
-            date_min = global_raw_usage.Date.min()
+            date_min = global_raw_usage.Date.min().date()
         else:
-            date_min = pd.to_datetime("2016-01-01")
+            date_min = pd.to_datetime("2016-01-01").date()
+    else:
+        date_min = url_params[URL_PARAM_DT_FROM].date()
 
-    date_max = url_params[URL_PARAM_DT_TO]
-
-    if not date_max:
+    if not url_params[URL_PARAM_DT_TO]:
         if not global_sub_raw_usage.empty:
-            date_max = global_sub_raw_usage.Date.min()
+            date_max = global_sub_raw_usage.Date.min().date()
         elif not global_raw_usage.empty:
-            date_max = global_raw_usage.Date.max()
+            date_max = global_raw_usage.Date.max().date()
         else:
-            date_max = pd.to_datetime("2021-12-31")
+            date_max = pd.to_datetime("2021-12-31").date()
+    else:
+        date_max = url_params[URL_PARAM_DT_TO].date()
 
     global_date_picker_from = DatePicker(value=date_min, title="Date from")
     global_date_picker_to = DatePicker(value=date_max, title="Date to")
