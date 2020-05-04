@@ -41,9 +41,9 @@ CONST_COL_NAME_SUM = "sum"
 CONST_COL_NAME_PERC = "Perc"
 CONST_COL_NAME_SERVICE = "Service"
 CONST_COL_NAME_ANGLE = "angle"
-CONST_COL_NAME_IDEALCOST = 'Ideal_Cost'
-CONST_COL_NAME_AVAILCOST = 'Avail_Cost'
-CONST_COL_NAME_SUB = 'Subscription'
+CONST_COL_NAME_IDEALCOST = "Ideal_Cost"
+CONST_COL_NAME_AVAILCOST = "Avail_Cost"
+CONST_COL_NAME_SUB = "Subscription"
 
 CONST_COL_NAME_HANDOUTNAME = "HandoutName"
 CONST_COL_NAME_LABNAME = "LabName"
@@ -51,10 +51,9 @@ CONST_COL_NAME_COURSENAME = "CourseName"
 
 CONST_NAME_OTHER = "Other"
 
-CONST_TEST_DIR = os.path.abspath(os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), 
-    "..",
-    CONST_TEST_FOLDER))
+CONST_TEST_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", CONST_TEST_FOLDER)
+)
 
 CONST_TEST_DIR_DATA_LOADER = os.path.join(CONST_TEST_DIR, DATA_FOLDER)
 CONST_TEST_DIR_0 = "0_empty_dir"
@@ -68,7 +67,7 @@ CONST_TEST_DIR_5 = "5_missing_days"
 CONST_TEST_DIR_6 = "6_multiple_services"
 CONST_TEST_DIR_8 = "8_eduhub"
 
-CONST_RB_DEFAULT = 1
+CONST_RB_DEFAULT = 0
 CONST_RB_LABEL_0 = "Type"
 CONST_RB_VALUE_0 = 0
 CONST_RB_LABEL_1 = "Name + Type + Resource"

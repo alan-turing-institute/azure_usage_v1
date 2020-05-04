@@ -29,7 +29,8 @@ would like it to have.
 Instructions on how to create the infrastructure required for the webapp can be found <a href="https://github.com/alan-turing-institute/azure_usage_v1/blob/master/INSTALL.md">here</a>.
 
 <h2>Project contributors</h2>
- - <a href="https://www.turing.ac.uk/research/research-programmes/research-engineering">The Alan Turing REG team</a>
+
+<a href="https://www.turing.ac.uk/research/research-programmes/research-engineering">The Alan Turing REG team</a>
 
 <h2>Getting help</h2>
 
