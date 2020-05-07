@@ -1,14 +1,10 @@
 #!/usr/bin/python
 """
 Python module to perform operations related to aggregated numbers.
-
-Author: Tomas Lazauskas
 """
 
 import pandas as pd
-import numpy as np
 
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from .constants import (
@@ -41,7 +37,8 @@ def group_day(raw_data, add_missing_days=False):
 
     if add_missing_days:
         raw_data_gr.set_index(CONST_COL_NAME_DATE, inplace=True)
-        raw_data_gr = raw_data_gr.resample("D").asfreq().fillna(0).reset_index()
+        raw_data_gr = raw_data_gr.resample(
+            "D").asfreq().fillna(0).reset_index()
 
     return raw_data_gr
 
