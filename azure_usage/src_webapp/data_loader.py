@@ -50,15 +50,19 @@ def check_filename_convention(filename):
     try:
         end_date = datetime.datetime.strptime(end_date_str, "%Y-%m-%d")
         start_date = datetime.datetime.strptime(start_date_str, "%Y-%m-%d")
+
     except ValueError:
+        start_date = None
+        end_date = None
+
         print("File name {} has incorrect format".format(filename))
-        return False
+        return False, start_date, end_date
 
     if start_date >= end_date:
         print("File name {} has incorrect format".format(filename))
-        return False
+        return False, start_date, end_date
 
-    return True
+    return True, start_date, end_date
 
 
 def create_dataframe_from_dir(directory):
@@ -81,24 +85,44 @@ def create_dataframe_from_dir(directory):
             continue
 
         # Assert that the file is named correctly
-        check_filename_convention(filename)
+        _, start_date, end_date = check_filename_convention(filename)
 
         df = pd.read_csv(os.path.join(directory, filename))
         df = df.assign(SourceFile=filename)
 
-        try:
-            df[CONST_COL_NAME_DATE] = pd.to_datetime(
-                df[CONST_COL_NAME_DATE], format="%m/%d/%Y"
-            )
-        except:
+        # In January 2020, MS changed the date format used in the usage 
+        # export files from US to UK. This happen between 24/01/2020 - 
+        # 28/01/2020. The following if statement is to deal with this
+        # change.
+
+        if start_date > datetime.datetime(2020, 1, 24, 0, 0):
             try:
                 df[CONST_COL_NAME_DATE] = pd.to_datetime(
                     df[CONST_COL_NAME_DATE], format="%d/%m/%Y"
                 )
             except:
+                try:
+                    df[CONST_COL_NAME_DATE] = pd.to_datetime(
+                        df[CONST_COL_NAME_DATE], format="%m/%d/%Y"
+                    )
+                except:
+                    df[CONST_COL_NAME_DATE] = pd.to_datetime(
+                        df[CONST_COL_NAME_DATE], format="%Y-%m-%d"
+                    )
+        else:
+            try:
                 df[CONST_COL_NAME_DATE] = pd.to_datetime(
-                    df[CONST_COL_NAME_DATE], format="%Y-%m-%d"
+                    df[CONST_COL_NAME_DATE], format="%m/%d/%Y"
                 )
+            except:
+                try:
+                    df[CONST_COL_NAME_DATE] = pd.to_datetime(
+                        df[CONST_COL_NAME_DATE], format="%d/%m/%Y"
+                    )
+                except:
+                    df[CONST_COL_NAME_DATE] = pd.to_datetime(
+                        df[CONST_COL_NAME_DATE], format="%Y-%m-%d"
+                    )
 
         # Check if data comes from EduHub
         if CONST_COL_NAME_HANDOUTNAME in df.columns:
