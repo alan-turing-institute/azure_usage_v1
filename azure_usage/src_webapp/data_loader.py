@@ -94,6 +94,8 @@ def create_dataframe_from_dir(directory):
         # export files from US to UK. This happen between 24/01/2020 - 
         # 28/01/2020. The following if statement is to deal with this
         # change.
+        if start_date is None or end_date is None:
+            continue
 
         if start_date > datetime.datetime(2020, 1, 24, 0, 0):
             try:
