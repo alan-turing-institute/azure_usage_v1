@@ -1,5 +1,9 @@
-import pandas as pd
+"""
+Utilities module
+"""
+
 import os
+import pandas as pd
 
 from .constants import (
     URL_PARAM_SUB_IDS,
@@ -8,8 +12,8 @@ from .constants import (
     URL_PARAM_DT_TO,
     DEFAULT_REPORT_NAME,
     CONST_ENCODING,
-    TIMESTAMP_FILE
 )
+
 
 def prep_sub_id(sub_id_input):
     """Processes subscription ID
@@ -20,14 +24,15 @@ def prep_sub_id(sub_id_input):
         Processed subscription id
 
     """
-    
-    if type(sub_id_input) is not str:
+
+    if not isinstance(sub_id_input, str):
         return ""
-    
+
     if len(sub_id_input) == 0:
         return ""
 
     return "{" + sub_id_input.strip().upper() + "}"
+
 
 def prep_sub_ids(sub_ids_input):
     """Processes subscription IDs to be used for selecting data
@@ -39,17 +44,17 @@ def prep_sub_ids(sub_ids_input):
         a processed subscription id or a list of processed subscription ids
     """
 
-    if type(sub_ids_input) is not str:
+    if not isinstance(sub_ids_input, str):
         return ""
-    
+
     if len(sub_ids_input) == 0:
         return ""
 
     sub_id_array = sub_ids_input.split(",")
-    
+
     if len(sub_id_array) == 0:
         return ""
- 
+
     sub_ids_list = []
 
     for sub_id in sub_id_array:
@@ -57,7 +62,8 @@ def prep_sub_ids(sub_ids_input):
 
     return sub_ids_list
 
-def diff_month(d1, d2):
+
+def diff_month(date1, date2):
     """ Counts the number of months between two dates
 
     Args:
@@ -67,32 +73,33 @@ def diff_month(d1, d2):
         number of months between two dates
     """
 
-    return (d1.year - d2.year) * 12 + d1.month - d2.month
+    return (date1.year - date2.year) * 12 + date1.month - date2.month
+
 
 def parse_url_params(url_params):
     """Reads in url parameters.
 
     Arguments:
-        url_params: arguments of a bokeh document 
+        url_params: arguments of a bokeh document
 
     Returns:
         A dictionary with the parsed url parameters
     """
- 
-    if (URL_PARAM_SUB_IDS in url_params):
+
+    if URL_PARAM_SUB_IDS in url_params:
 
         sub_ids = url_params[URL_PARAM_SUB_IDS][0].decode(CONST_ENCODING)
 
-        if (sub_ids == None) or (sub_ids == "None"):
+        if sub_ids in [None, "None"]:
             sub_ids = ""
 
     else:
         sub_ids = ""
 
-    if(URL_PARAM_REPORT in url_params):
+    if URL_PARAM_REPORT in url_params:
         report_title = url_params[URL_PARAM_REPORT][0].decode(CONST_ENCODING)
 
-        if (report_title == None) or (report_title == "None"):
+        if report_title in [None, "None"]:
             report_title = DEFAULT_REPORT_NAME
 
     else:
@@ -103,16 +110,16 @@ def parse_url_params(url_params):
     date_max = None
 
     # Read min and max date ranges from URL query parameters if present
-    if(URL_PARAM_DT_FROM in url_params):
+    if URL_PARAM_DT_FROM in url_params:
         try:
             date_from_text = url_params[URL_PARAM_DT_FROM][0].decode(CONST_ENCODING)
-            date_min = pd.to_datetime(date_from_text, format='%Y-%m-%d')
+            date_min = pd.to_datetime(date_from_text, format="%Y-%m-%d")
         except ValueError:
             pass
-    if(URL_PARAM_DT_TO in url_params):
+    if URL_PARAM_DT_TO in url_params:
         try:
             date_from_text = url_params[URL_PARAM_DT_TO][0].decode(CONST_ENCODING)
-            date_max = pd.to_datetime(date_from_text, format='%Y-%m-%d')
+            date_max = pd.to_datetime(date_from_text, format="%Y-%m-%d")
         except ValueError:
             pass
 
@@ -123,7 +130,8 @@ def parse_url_params(url_params):
     url_params[URL_PARAM_DT_FROM] = date_min
     url_params[URL_PARAM_DT_TO] = date_max
 
-    return url_params 
+    return url_params
+
 
 def read_timestamp(timestamp_path):
     """
@@ -137,13 +145,10 @@ def read_timestamp(timestamp_path):
     """
 
     try:
-        timestamp_f = open(os.path.abspath(timestamp_path), 'r')
-        file_context = timestamp_f.read().replace('\n', '')
+        timestamp_f = open(os.path.abspath(timestamp_path), "r")
+        file_context = timestamp_f.read().replace("\n", "")
         timestamp_f.close()
         result = pd.to_datetime(file_context)
         return result
     except:
         return None
-
-
-
