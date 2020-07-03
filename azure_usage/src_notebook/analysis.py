@@ -97,8 +97,12 @@ def create_cost_avail_ideal_df(
         0,
     )
 
-    budget_left_avg_day = float(budget_left) / float(budget_days_left)
-    budget_left_avg_month = float(budget_left) / float(budget_months_left)
+    budget_left_avg_day, budget_left_avg_month = 0, 0
+
+    if budget_days_left > 0:
+        budget_left_avg_day = float(budget_left) / float(budget_days_left)
+    if budget_months_left > 0:
+        budget_left_avg_month = float(budget_left) / float(budget_months_left)
 
     cur_date = copy.copy(date_from).replace(day=1)
 
