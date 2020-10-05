@@ -11,7 +11,7 @@ services:
   # Azure OAuth Proxy
   authproxy:
     container_name: authproxy
-    image: azureusage/oauth2:latest
+    image: bitnami/oauth2-proxy:latest
     networks:
       webapp-net:
     ports:
@@ -28,7 +28,8 @@ services:
       "--http-address=0.0.0.0:4180",
       "--redirect-url=https://turingazureusagetest.azurewebsites.net/oauth2/callback",
       "--email-domain=turing.ac.uk",
-      "--azure-tenant=<<<<REPLACE ME>>>>"
+      "--azure-tenant=<<<<REPLACE ME>>>>",
+      "--session-cookie-minimal=true"
     ]
 
   # nginx
