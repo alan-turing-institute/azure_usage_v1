@@ -1,3 +1,7 @@
+📝 22/03/2021
+
+- Minor fixes related to the new version of the bokeh module.
+
 📝 04/05/2020
 
 - Bug fixes

@@ -370,6 +370,10 @@ def _update_data(*_):
         new_sub_raw_usage_grp.sum()[CONST_COL_NAME_COST]
     )
 
+    _plot_total_usage()
+
+    _plot_top_services()
+
 
 def _create_analysis_tab(doc, url_params):
     """
