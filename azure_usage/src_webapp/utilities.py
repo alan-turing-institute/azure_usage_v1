@@ -38,7 +38,8 @@ def prep_sub_ids(sub_ids_input):
     """Processes subscription IDs to be used for selecting data
 
     Args:
-        sub_ids_input: raw string containing subscription ids separated via comma
+        sub_ids_input: raw string containing subscription ids
+        separated via comma
 
     Returns:
         a processed subscription id or a list of processed subscription ids
@@ -64,7 +65,7 @@ def prep_sub_ids(sub_ids_input):
 
 
 def diff_month(date1, date2):
-    """ Counts the number of months between two dates
+    """Counts the number of months between two dates
 
     Args:
         d1 - date to
@@ -105,20 +106,25 @@ def parse_url_params(url_params):
     else:
         report_title = DEFAULT_REPORT_NAME
 
-    # Initialise date range min and max to None so we can tell if they've been set from the URL
+    # Initialise date range min and max to None so we can tell if they've
+    # been set from the URL
     date_min = None
     date_max = None
 
     # Read min and max date ranges from URL query parameters if present
     if URL_PARAM_DT_FROM in url_params:
         try:
-            date_from_text = url_params[URL_PARAM_DT_FROM][0].decode(CONST_ENCODING)
+            date_from_text = url_params[URL_PARAM_DT_FROM][0].decode(
+                CONST_ENCODING
+            )
             date_min = pd.to_datetime(date_from_text, format="%Y-%m-%d")
         except ValueError:
             pass
     if URL_PARAM_DT_TO in url_params:
         try:
-            date_from_text = url_params[URL_PARAM_DT_TO][0].decode(CONST_ENCODING)
+            date_from_text = url_params[URL_PARAM_DT_TO][0].decode(
+                CONST_ENCODING
+            )
             date_max = pd.to_datetime(date_from_text, format="%Y-%m-%d")
         except ValueError:
             pass
@@ -150,5 +156,5 @@ def read_timestamp(timestamp_path):
         timestamp_f.close()
         result = pd.to_datetime(file_context)
         return result
-    except:
+    except Exception:
         return None

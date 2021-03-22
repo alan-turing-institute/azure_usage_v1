@@ -18,7 +18,10 @@ from ..src_webapp.constants import (
     CONST_TEST_DIR_4,
     CONST_TEST_DIR_8,
 )
-from ..src_webapp.data_loader import create_dataframe, check_filename_convention
+from ..src_webapp.data_loader import (
+    create_dataframe,
+    check_filename_convention,
+)
 
 
 def test_check_filename_convention():
@@ -108,7 +111,8 @@ def test_create_dataframe_multiple_files():
     """
     Testing import from multiple files with overlaping data
 
-    The third file should override the second file's entry and keep the first files data
+    The third file should override the second file's entry
+    and keep the first files data
     """
 
     data_path = os.path.join(CONST_TEST_DIR_DATA_LOADER, CONST_TEST_DIR_3)

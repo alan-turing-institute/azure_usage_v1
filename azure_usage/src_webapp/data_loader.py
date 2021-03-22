@@ -4,10 +4,12 @@
 Functions to create dataframes from directories of Azure usage data.
 Usage:
      create_dataframe_from_dir(<directory_name>)
-         will create at a directory containing a self-consistent set of csv files.
+         will create at a directory containing a self-consistent set
+         of csv files.
      create_dataframe(<base_directory>)
-         will loop through the subdirectories of a base directory, calling the above method on each,
-         concatenating the dataframes and deduplicating (taking the last entry).
+         will loop through the subdirectories of a base directory,
+         calling the above method on each, concatenating the
+         dataframes and deduplicating (taking the last entry).
 """
 
 import os
@@ -33,8 +35,8 @@ def check_filename_convention(filename):
     the end of the time period and the second is the start of the time period.
     This checks for any dates named inconsistently.
 
-    This will through an error if formatting is incorrect, and warn if the dates
-    are not in the correct order.
+    This will through an error if formatting is incorrect, and warn if the
+    dates are not in the correct order.
 
     Returns True if format correct, False otherwise
     """
@@ -45,7 +47,7 @@ def check_filename_convention(filename):
     filename = filename.replace(" ", "")
 
     end_date_str = filename[:10]
-    start_date_str = filename[11 : 11 + 10]
+    start_date_str = filename[11:11 + 10]
 
     try:
         end_date = datetime.datetime.strptime(end_date_str, "%Y-%m-%d")
@@ -90,8 +92,8 @@ def create_dataframe_from_dir(directory):
         df = pd.read_csv(os.path.join(directory, filename))
         df = df.assign(SourceFile=filename)
 
-        # In January 2020, MS changed the date format used in the usage 
-        # export files from US to UK. This happen between 24/01/2020 - 
+        # In January 2020, MS changed the date format used in the usage
+        # export files from US to UK. This happen between 24/01/2020 -
         # 28/01/2020. The following if statement is to deal with this
         # change.
         if start_date is None or end_date is None:
@@ -102,12 +104,12 @@ def create_dataframe_from_dir(directory):
                 df[CONST_COL_NAME_DATE] = pd.to_datetime(
                     df[CONST_COL_NAME_DATE], format="%d/%m/%Y"
                 )
-            except:
+            except Exception:
                 try:
                     df[CONST_COL_NAME_DATE] = pd.to_datetime(
                         df[CONST_COL_NAME_DATE], format="%m/%d/%Y"
                     )
-                except:
+                except Exception:
                     df[CONST_COL_NAME_DATE] = pd.to_datetime(
                         df[CONST_COL_NAME_DATE], format="%Y-%m-%d"
                     )
@@ -116,12 +118,12 @@ def create_dataframe_from_dir(directory):
                 df[CONST_COL_NAME_DATE] = pd.to_datetime(
                     df[CONST_COL_NAME_DATE], format="%m/%d/%Y"
                 )
-            except:
+            except Exception:
                 try:
                     df[CONST_COL_NAME_DATE] = pd.to_datetime(
                         df[CONST_COL_NAME_DATE], format="%d/%m/%Y"
                     )
-                except:
+                except Exception:
                     df[CONST_COL_NAME_DATE] = pd.to_datetime(
                         df[CONST_COL_NAME_DATE], format="%Y-%m-%d"
                     )
@@ -130,10 +132,14 @@ def create_dataframe_from_dir(directory):
         if CONST_COL_NAME_HANDOUTNAME in df.columns:
 
             # Renaming HandoutName to SubscriptionName
-            df = df.rename(columns={CONST_COL_NAME_HANDOUTNAME: CONST_COL_NAME_SNAME})
+            df = df.rename(
+                columns={CONST_COL_NAME_HANDOUTNAME: CONST_COL_NAME_SNAME}
+            )
 
             # Dropping columns CourseName,LabName
-            df = df.drop(columns=[CONST_COL_NAME_LABNAME, CONST_COL_NAME_COURSENAME])
+            df = df.drop(
+                columns=[CONST_COL_NAME_LABNAME, CONST_COL_NAME_COURSENAME]
+            )
 
         df_list.append(df)
 
@@ -149,7 +155,8 @@ def concat_dataframes(df_list):
     """
     Takes a list of dataframes, concatenates them, and deduplicates based on
     all columns except for 'Quantity','Cost','SourceFile', taking the
-    last entry (i.e. we assume that the dataframes are passed to it most-recent-last).
+    last entry (i.e. we assume that the dataframes are passed to it
+    most-recent-last).
     """
 
     if len(df_list) == 0:
@@ -159,7 +166,8 @@ def concat_dataframes(df_list):
 
     columns_to_dedup = list(total_df.columns)
 
-    # if dataframe is empty and does not have any columns do not need to do anything
+    # if dataframe is empty and does not have any columns
+    # do not need to do anything
     if total_df.empty and (len(columns_to_dedup) == 0):
         return total_df
 
@@ -172,10 +180,11 @@ def concat_dataframes(df_list):
 
 def create_dataframe(base_dir):
     """
-    Given a directory that contains some other directories (ideally ordered by date
-    when sorted by name), loop through all these directories, create a data frame
-    for each, and concatenate them using the concat_dataframes method (which will
-    remove duplicates keeping the latest).
+    Given a directory that contains some other directories (ideally
+    ordered by date when sorted by name), loop through all these
+    directories, create a data frame for each, and concatenate
+    them using the concat_dataframes method (which will remove
+    duplicateskeeping the latest).
     """
 
     if not os.path.exists(base_dir):
@@ -196,8 +205,7 @@ def create_dataframe(base_dir):
     return final_df
 
 
-###### NO UNIT TESTS FOR ALL THE FOLLWING FUNCTIONS
-
+# NO UNIT TESTS FOR ALL THE FOLLWING FUNCTIONS
 
 def check_missing_data(df, date_from, date_to, ignore_from_today=True):
     """

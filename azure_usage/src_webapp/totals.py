@@ -36,7 +36,9 @@ def group_day(raw_data, add_missing_days=False):
 
     if add_missing_days:
         raw_data_gr.set_index(CONST_COL_NAME_DATE, inplace=True)
-        raw_data_gr = raw_data_gr.resample("D").asfreq().fillna(0).reset_index()
+        raw_data_gr = (
+            raw_data_gr.resample("D").asfreq().fillna(0).reset_index()
+        )
 
     raw_data_gr["Date"] = pd.to_datetime(raw_data_gr["Date"])
 
@@ -50,8 +52,9 @@ def group_day(raw_data, add_missing_days=False):
 
 
 def add_missing_year_months(df, date_from, date_to, value_col_name):
-    """Adds missing Year-Month values from the given range to the dataframe with zero values
-        in the specified column
+    """
+    Adds missing Year-Month values from the given range to the
+        dataframe with zero values in the specified column
 
     Args:
         df - dataframe of grouped raw usage by calender month
@@ -71,9 +74,10 @@ def add_missing_year_months(df, date_from, date_to, value_col_name):
         )
         cur_date += relativedelta(months=1)
 
-        if not year_month in df[CONST_COL_NAME_YM].values:
+        if year_month not in df[CONST_COL_NAME_YM].values:
             df = df.append(
-                {CONST_COL_NAME_YM: year_month, value_col_name: 0.0}, ignore_index=True
+                {CONST_COL_NAME_YM: year_month, value_col_name: 0.0},
+                ignore_index=True,
             )
 
     return df
@@ -89,9 +93,9 @@ def group_year_month(raw_data):
     """
 
     raw_data_ = raw_data.copy()
-    raw_data_[CONST_COL_NAME_YM] = pd.to_datetime(raw_data_[CONST_COL_NAME_DATE]).apply(
-        lambda x: "{year}-{month:02d}".format(year=x.year, month=x.month)
-    )
+    raw_data_[CONST_COL_NAME_YM] = pd.to_datetime(
+        raw_data_[CONST_COL_NAME_DATE]
+    ).apply(lambda x: "{year}-{month:02d}".format(year=x.year, month=x.month))
 
     raw_data_gr = (
         raw_data_.groupby([CONST_COL_NAME_YM])[CONST_COL_NAME_COST]
@@ -113,9 +117,9 @@ def group_sub_year_month(raw_data):
     """
 
     raw_data_ = raw_data.copy()
-    raw_data_[CONST_COL_NAME_YM] = pd.to_datetime(raw_data_[CONST_COL_NAME_DATE]).apply(
-        lambda x: "{year}-{month:02d}".format(year=x.year, month=x.month)
-    )
+    raw_data_[CONST_COL_NAME_YM] = pd.to_datetime(
+        raw_data_[CONST_COL_NAME_DATE]
+    ).apply(lambda x: "{year}-{month:02d}".format(year=x.year, month=x.month))
 
     raw_data_gr = (
         raw_data_.groupby([CONST_COL_NAME_SGUID, CONST_COL_NAME_YM])[

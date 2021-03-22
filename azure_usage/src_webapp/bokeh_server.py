@@ -83,14 +83,16 @@ GLOBAL_PWD = os.path.dirname(os.path.realpath(__file__))
 
 
 def readin_data(data_path=None):
-    """ Reads in raw Azure usage data.
+    """Reads in raw Azure usage data.
 
     Returns:
         dataframe with the read in data
     """
 
     if data_path is None:
-        _data_path = os.path.join(os.path.join(GLOBAL_PWD, "..", ".."), DATA_FOLDER)
+        _data_path = os.path.join(
+            os.path.join(GLOBAL_PWD, "..", ".."), DATA_FOLDER
+        )
     else:
         _data_path = data_path
 
@@ -121,7 +123,9 @@ def create_updates_tab():
 
     """
 
-    file_path = os.path.join(os.path.join(GLOBAL_PWD, "..", ".."), UPDATES_FILE)
+    file_path = os.path.join(
+        os.path.join(GLOBAL_PWD, "..", ".."), UPDATES_FILE
+    )
 
     updates_text = ""
     with open(file_path, "r", encoding=CONST_ENCODING) as myfile:
@@ -158,8 +162,7 @@ def create_about_tab():
 
 
 def create_usage_bar_plot():
-    """ Creates a bar plot to show daily usage
-    """
+    """Creates a bar plot to show daily usage"""
 
     bar_plot = figure(
         plot_height=400,
@@ -176,7 +179,10 @@ def create_usage_bar_plot():
     )
 
     bar_plot.xaxis.formatter = DatetimeTickFormatter(
-        hours=["%d %B %Y"], days=["%d %B %Y"], months=["%d %B %Y"], years=["%d %B %Y"],
+        hours=["%d %B %Y"],
+        days=["%d %B %Y"],
+        months=["%d %B %Y"],
+        years=["%d %B %Y"],
     )
 
     bar_plot.xaxis.major_label_orientation = pi / 4
@@ -186,8 +192,7 @@ def create_usage_bar_plot():
 
 
 def create_top_services_pie_plot():
-    """ Creates top services pie plot
-    """
+    """Creates top services pie plot"""
 
     pie_plot = figure(
         plot_height=500,
@@ -204,7 +209,7 @@ def create_top_services_pie_plot():
     return pie_plot
 
 
-###### NO UNIT TESTS FOR ALL THE FOLLWING FUNCTIONS
+# NO UNIT TESTS FOR ALL THE FOLLWING FUNCTIONS
 
 
 def modify_doc(doc):
@@ -252,7 +257,9 @@ def initiliase_data_sources():
 
     prep_sub_ids_list = prep_sub_ids(default_subid)
 
-    GLOBAL_SUB_RAW_USAGE = get_data_for_subid(GLOBAL_RAW_USAGE, prep_sub_ids_list)
+    GLOBAL_SUB_RAW_USAGE = get_data_for_subid(
+        GLOBAL_RAW_USAGE, prep_sub_ids_list
+    )
 
     sub_raw_usage_grp = group_day(GLOBAL_SUB_RAW_USAGE, add_missing_days=True)
 
@@ -293,7 +300,9 @@ def _update_data(*_):
         prep_sub_ids_list = new_sub_raw_usage["SubscriptionGuid"].unique()
     else:
         prep_sub_ids_list = prep_sub_ids(GLOBAL_WIDGET_SUBID.value.upper())
-        new_sub_raw_usage = get_data_for_subid(GLOBAL_RAW_USAGE, prep_sub_ids_list)
+        new_sub_raw_usage = get_data_for_subid(
+            GLOBAL_RAW_USAGE, prep_sub_ids_list
+        )
 
     # Adjusting date interval
     if not new_sub_raw_usage.empty:
@@ -302,11 +311,12 @@ def _update_data(*_):
         date_end = pd.Timestamp(GLOBAL_DATE_PICKER_TO.value)
 
         new_sub_raw_usage = new_sub_raw_usage.loc[
-            (new_sub_raw_usage.Date >= date_st) & (new_sub_raw_usage.Date <= date_end)
+            (new_sub_raw_usage.Date >= date_st)
+            & (new_sub_raw_usage.Date <= date_end)
         ]
 
-    # For each subscription get the most recently used name in the selected time period
-    # and show in UI
+    # For each subscription get the most recently used name in the
+    # selected time period and show in UI
     subscription_names = []
     subscription_names_string = ""
 
@@ -325,22 +335,27 @@ def _update_data(*_):
             subscription_names_string = ", ".join(subscription_names)
 
     if all_mode:
-        GLOBAL_WIDGET_SUBSCRIPTION_NAMES.text = "<b>{0} subscriptions selected</b>".format(
-            len(prep_sub_ids_list)
+        GLOBAL_WIDGET_SUBSCRIPTION_NAMES.text = (
+            "<b>{0} subscriptions selected</b>".format(len(prep_sub_ids_list))
         )
     else:
-        GLOBAL_WIDGET_SUBSCRIPTION_NAMES.text = "<b>{0} subscriptions selected:</b> {1}".format(
-            len(subscription_names), subscription_names_string
+        GLOBAL_WIDGET_SUBSCRIPTION_NAMES.text = (
+            "<b>{0} subscriptions selected:</b> {1}".format(
+                len(subscription_names), subscription_names_string
+            )
         )
 
     # TOTAL USAGE
     new_sub_raw_usage_grp = group_day(new_sub_raw_usage, add_missing_days=True)
 
-    GLOBAL_TOTAL_SOURCE.data = dict(ColumnDataSource(data=new_sub_raw_usage_grp).data)
+    GLOBAL_TOTAL_SOURCE.data = dict(
+        ColumnDataSource(data=new_sub_raw_usage_grp).data
+    )
 
     # Ploting TOP SERVICES
     new_sub_service_grp = get_top_services(
-        new_sub_raw_usage, top_services_grp_md=GLOBAL_WIDGET_TOP_SERVICES_RB.active
+        new_sub_raw_usage,
+        top_services_grp_md=GLOBAL_WIDGET_TOP_SERVICES_RB.active,
     )
 
     new_sub_service_grp_cnt = len(new_sub_service_grp)
@@ -357,7 +372,9 @@ def _update_data(*_):
         if new_sub_service_grp_cnt > 2:
             new_sub_service_grp["color"] = Category20c[new_sub_service_grp_cnt]
         else:
-            new_sub_service_grp["color"] = Category20c[3][:new_sub_service_grp_cnt]
+            new_sub_service_grp["color"] = Category20c[3][
+                :new_sub_service_grp_cnt
+            ]
     else:
         new_sub_service_grp[CONST_COL_NAME_ANGLE] = 0
         new_sub_service_grp["color"] = Category20c[3][:1]
@@ -369,6 +386,10 @@ def _update_data(*_):
     GLOBAL_WIDGET_TOTAL_TEXT.text = "Total usage: ${:,.2f}".format(
         new_sub_raw_usage_grp.sum()[CONST_COL_NAME_COST]
     )
+
+    _plot_total_usage()
+
+    _plot_top_services()
 
 
 def _create_analysis_tab(doc, url_params):
@@ -395,7 +416,8 @@ def _create_analysis_tab(doc, url_params):
     global GLOBAL_SUB_RAW_USAGE
 
     widget_input_text = Div(
-        text=url_params[URL_PARAM_REPORT], style={"font-size": "200%", "color": "black"}
+        text=url_params[URL_PARAM_REPORT],
+        style={"font-size": "200%", "color": "black"},
     )
 
     if GLOBAL_LAST_UPDATE is not None:
@@ -458,7 +480,12 @@ def _create_analysis_tab(doc, url_params):
 
     # top services grouping button
     GLOBAL_WIDGET_TOP_SERVICES_RB = RadioButtonGroup(
-        labels=[CONST_RB_LABEL_0, CONST_RB_LABEL_1, CONST_RB_LABEL_2, CONST_RB_LABEL_3],
+        labels=[
+            CONST_RB_LABEL_0,
+            CONST_RB_LABEL_1,
+            CONST_RB_LABEL_2,
+            CONST_RB_LABEL_3,
+        ],
         active=CONST_RB_DEFAULT,
     )
 
@@ -469,7 +496,11 @@ def _create_analysis_tab(doc, url_params):
     analysis_widgets = layout(
         [
             layout([widget_input_text, last_update_text]),
-            [GLOBAL_WIDGET_SUBID, GLOBAL_DATE_PICKER_FROM, GLOBAL_DATE_PICKER_TO],
+            [
+                GLOBAL_WIDGET_SUBID,
+                GLOBAL_DATE_PICKER_FROM,
+                GLOBAL_DATE_PICKER_TO,
+            ],
             [GLOBAL_WIDGET_SUBSCRIPTION_NAMES],
             [widget_usage_text],
             [GLOBAL_S1],
@@ -480,8 +511,14 @@ def _create_analysis_tab(doc, url_params):
         sizing_mode="scale_width",
     )
 
-    for widget in [GLOBAL_WIDGET_SUBID, GLOBAL_DATE_PICKER_FROM, GLOBAL_DATE_PICKER_TO]:
-        widget.on_change("value", lambda attr, old, new: _update_data(doc, url_params))
+    for widget in [
+        GLOBAL_WIDGET_SUBID,
+        GLOBAL_DATE_PICKER_FROM,
+        GLOBAL_DATE_PICKER_TO,
+    ]:
+        widget.on_change(
+            "value", lambda attr, old, new: _update_data(doc, url_params)
+        )
 
     GLOBAL_WIDGET_TOP_SERVICES_RB.on_change(
         "active", lambda attr, old, new: _update_data(doc, url_params)
@@ -491,8 +528,7 @@ def _create_analysis_tab(doc, url_params):
 
 
 def _create_top_services_tbl():
-    """ Creates top services table
-    """
+    """Creates top services table"""
 
     global GLOBAL_SUB_SERVICE_GRP
     global GLOBAL_TOP_SERVICE_SOURCE
@@ -559,9 +595,7 @@ def _set_layout(doc, url_params):
 
 
 def _plot_total_usage():
-    """Plots total usgae by the subscription.
-
-    """
+    """Plots total usgae by the subscription."""
 
     global GLOBAL_S1
     global GLOBAL_TOTAL_SOURCE
@@ -577,8 +611,7 @@ def _plot_total_usage():
 
 
 def _plot_top_services():
-    """Plots top services pie chart
-    """
+    """Plots top services pie chart"""
     global GLOBAL_S2
     global GLOBAL_TOP_SERVICE_SOURCE
 

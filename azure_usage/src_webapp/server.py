@@ -11,15 +11,15 @@ from .bokeh_server import modify_doc
 
 
 def bk_worker(origin, bport):
-    """ A worker to run Bokeh application
+    """A worker to run Bokeh application
 
     Args:
         origin - The origin of the websocket connections
         bport - The port of the Bokeh webapp
     """
 
-    # Can't pass num_procs > 1 in this configuration. If you need to run multiple
-    # processes, see e.g. flask_gunicorn_embed.py
+    # Can't pass num_procs > 1 in this configuration. If you need to run
+    # multiple processes, see e.g. flask_gunicorn_embed.py
 
     server = Server(
         {"/bokeh_server": modify_doc},
