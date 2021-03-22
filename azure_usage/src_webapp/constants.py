@@ -52,7 +52,9 @@ CONST_COL_NAME_COURSENAME = "CourseName"
 CONST_NAME_OTHER = "Other"
 
 CONST_TEST_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", CONST_TEST_FOLDER)
+    os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "..", CONST_TEST_FOLDER
+    )
 )
 
 CONST_TEST_DIR_DATA_LOADER = os.path.join(CONST_TEST_DIR, DATA_FOLDER)

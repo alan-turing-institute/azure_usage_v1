@@ -1,8 +1,6 @@
 """
 Azure usage analysis webapp
 """
-
-#!/usr/bin/env python
 import argparse
 
 from src_webapp.server import bk_worker

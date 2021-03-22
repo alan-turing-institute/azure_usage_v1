@@ -4,8 +4,7 @@ test server
 Author: Tomas Lazauskas
 """
 
-import pytest
-from ..src_webapp.server import bk_worker
+# from ..src_webapp.server import bk_worker
 
 
 # def test_bk_worker():

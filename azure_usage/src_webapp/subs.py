@@ -41,7 +41,9 @@ def get_data_for_subid(raw_data, sub_ids):
         return raw_data[raw_data.SubscriptionGuid == sub_ids]
 
 
-def get_top_services(raw_data_df, top_services_num=None, top_services_grp_md=CONST_RB_DEFAULT):
+def get_top_services(
+    raw_data_df, top_services_num=None, top_services_grp_md=CONST_RB_DEFAULT
+):
     """
     Prepares top services dataframe
     """
@@ -152,7 +154,9 @@ def calc_top_services_perc(global_sub_service_grp):
             * 2
             * pi
         )
-        global_sub_service_grp["color"] = Category20c[len(global_sub_service_grp)]
+        global_sub_service_grp["color"] = Category20c[
+            len(global_sub_service_grp)
+        ]
 
     else:
         global_sub_service_grp[CONST_COL_NAME_ANGLE] = 0
