@@ -7,9 +7,10 @@ import argparse
 import sys
 import os
 from pandas import Timestamp
+import pytz
 
 from src_webapp.data_loader import create_dataframe
-from src_webapp.constants import TIMESTAMP_FILE
+from src_webapp.constants import TIMESTAMP_FILE, DEFAULT_TIMEZONE
 
 sys.path.append("./azure_usage/")
 
@@ -66,5 +67,8 @@ if __name__ == "__main__":
 
     # creating a time stamp when data was prepared
     timestamp_f = open(os.path.join(args.output, TIMESTAMP_FILE), "w")
-    timestamp_f.write("{}\n".format(Timestamp.now()))
+
+    london_tz = pytz.timezone(DEFAULT_TIMEZONE)
+    timestamp_f.write("{}\n".format(Timestamp.now(tz=london_tz)))
+
     timestamp_f.close()

@@ -42,8 +42,6 @@ def test_get_ideal_avail_spnsr_costs():
 
     assert max_reg_cost_day == pd.to_datetime("2019-11-11")
 
-    print(result_df)
-
     # test avail cost
     avail_cost = round(spnsr_budget - raw_usage[CONST_COL_NAME_COST].sum(), 9)
     avail_cost_sum = round(result_df[CONST_COL_NAME_AVAILCOST].sum(), 9)
@@ -174,7 +172,7 @@ def test_analyse_ea_usage():
     ea_budget, ea_usage, ea_remain, ea_df = analyse_ea_usage(
         budgets, ea_data_df, dt_from, dt_to, dt_now
     )
-    print(ea_df)
+
     assert ea_budget == 301886.79245283024
 
     total_ideal = round(ea_df[CONST_COL_NAME_IDEALCOST].sum(), 9)

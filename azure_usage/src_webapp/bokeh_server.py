@@ -50,6 +50,7 @@ from .constants import (
     CONST_ENCODING,
     DEFAULT_REPORT_NAME,
     TIMESTAMP_FILE,
+    DEFAULT_TIMEZONE,
 )
 
 from .subs import get_data_for_subid, get_top_services, calc_top_services_perc
@@ -387,10 +388,6 @@ def _update_data(*_):
         new_sub_raw_usage_grp.sum()[CONST_COL_NAME_COST]
     )
 
-    _plot_total_usage()
-
-    _plot_top_services()
-
 
 def _create_analysis_tab(doc, url_params):
     """
@@ -423,7 +420,9 @@ def _create_analysis_tab(doc, url_params):
     if GLOBAL_LAST_UPDATE is not None:
         last_update_text = Div(
             text="Last updated: {}".format(
-                GLOBAL_LAST_UPDATE.strftime("%B %d, %Y, %r")
+                GLOBAL_LAST_UPDATE.tz_convert(DEFAULT_TIMEZONE).strftime(
+                    "%B %d, %Y, %R (%Z)"
+                )
             ),
             style={"font-size": "125%", "color": "black"},
         )

@@ -22,6 +22,7 @@ DATA_DT_TO = "date_to"
 README_FILE = "README.md"
 UPDATES_FILE = "UPDATES.txt"
 TIMESTAMP_FILE = "update.log"
+DEFAULT_TIMEZONE = "Europe/London"
 DATA_FOLDER = "data"
 CONST_TEST_FOLDER = "tests"
 

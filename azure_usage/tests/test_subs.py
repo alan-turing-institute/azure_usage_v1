@@ -139,8 +139,6 @@ def test_get_top_services_grouping():
         raw_usage, top_services_num=20, top_services_grp_md=CONST_RB_VALUE_3
     )
 
-    print(top_services)
-
     value = round(
         float(
             top_services[
